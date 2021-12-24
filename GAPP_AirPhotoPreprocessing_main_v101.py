@@ -33,10 +33,7 @@ Notes:
       or Miniconda.
 
     - Specific Python modules needed for this script:
-        > Glob
-        > Joblib
-        > OpenCV
-        > Pillow
+        > tKinter
 
     - To use this script, simply adapt the directory paths and required values
       in the setup section of the script.
@@ -46,7 +43,6 @@ Notes:
 from tkinter import *
 import tkinter as tk
 from tkinter import ttk
-from PIL import *
 from tkinter import filedialog
 import os, sys
 from functools import partial
