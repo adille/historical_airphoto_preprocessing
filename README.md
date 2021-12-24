@@ -53,6 +53,8 @@ This script provide a graphic interface for controlling and launching all script
 **The required Python modules:**  
 *- tKinter* 
 
+![GAPP interface](https://github.com/adille/historical_airphoto_preprocessing/blob/GAPP/figures/GAPP_interface.JPG)
+
 
 ## SCRIPT 00 - Tool: FiducialTemplateCreator (optional)
 *Current version:* **1.0.1** *(22nd December 2021)*  
@@ -118,6 +120,9 @@ This script aims to detect the (pixel coordinates) centre of the four fiducial m
 *- A threshold value to define a good match (the higher the more confident) *  
 *- The number of CPU cores to use for the parallel processing (by default: max - 1)*   
   
+
+![Automatic Fiducial Detection](https://github.com/adille/historical_airphoto_preprocessing/blob/GAPP/figures/GAPP_fiducial_automatic_detection.JPG)
+
 
 ## SCRIPT 03: AirPhoto_reprojection  
 *Current version:* **1.0.2** *(22nd December 2021)*  
