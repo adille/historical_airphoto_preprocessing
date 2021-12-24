@@ -46,22 +46,18 @@ To contact me --> MyFirstName.MyLastName@africamuseum.be or MyFirstName.MyLastNa
   
 **!!! PLEASE READ THE FOLLOWING DESCRIPTION BEFORE USING THE SCRIPTS FOR THE FIRST TIME !!!**  
 
-## SCRIPT 00 - Tool: Copy2singleFolder (optional)
-*Current version:* **1.0.1** *(18th May 2021)*  
 
-This script simply copies all the raw scanned photos that are stored in a series of subfolders, into a single folder. It has been developed as the technicians who are taking care of scanning and archiving the raw scanned photos follow a specific structure of folders and subfolders to store the raw scanned data. As all the following scripts are based on the assumption that all the photos to process are in the same folder (i.e., one directory path provided for the input data), this small script allows copying the scanned data into an appropriate single place for their preprocessing. It also has the advantage of leaving the original scans where they are, and making us working on a copy of them.
+## GAPP_AirPhotoPreprocessing_main_v101
+This script provide a graphic interface for controlling and launching all scripts at once. It offers to tune some of the main parameters and launch one or multiple GAPP scripts.
 
-The required Python modules are **os** and **shutil**. They are both default modules within Python.
+**The required Python modules:**  
+*- tKinter* 
 
-**The parameters to provide are:**  
-*- The path of the source folder (i.e., master folder where all the photos and subfolders are located)*  
-*- The path of the destination folder*  
-*- The file format of the photos (by default, .tif), in case other files are stored in the folder and subfolders*  
 
 ## SCRIPT 00 - Tool: FiducialTemplateCreator (optional)
 *Current version:* **1.0.1** *(22nd December 2021)*  
 
-This script aims at creating templates for the four fiducial (corners) of an aerial image for later automatic detection of the fiducials on a large set of aerial images (see SCRIPT 02 - Automatic Fiducials Detection). Simply provide the path of one image of the set with representative fiducial marks. Note that SCRIPT 02 allows to test multiple templates.
+This script aims at creating templates for the four fiducial (corners) of an aerial image for later automatic detection of the fiducials on a large set of aerial images (see SCRIPT 02 - Automatic Fiducials Detection). Simply provide the path of one image of the set with representative fiducial marks. Note that SCRIPT 02 allows to test multiple templates. Good practice to lauch it before GAPP_AirPhotoPreprocessing_main_v101.
 
 **The required Python modules:**  
 *- OpenCV* 
@@ -79,7 +75,7 @@ This script aims at creating templates for the four fiducial (corners) of an aer
 ## SCRIPT 01: AirPhoto_CanvasSizing 
 *Current version:* **1.0.2** *(22nd December 2021)*  
   
-This script aims to get images with the same number of pixels in width and height, which is not always the case with scanned photographs. The script will look at all photographs available in a given directory and search for the maximum width and height values in the dataset. Once found, it will homogenize the dataset by adding rows and/or columns of black pixels to images that don't have these maximum dimensions.  
+This script aims to get images with the same number of pixels in width and height, which is not always the case with scanned photographs. The script will look at all photographs available in a given directory **and subdirectories** and search for the maximum width and height values in the dataset. Once found, it will homogenize the dataset by adding rows and/or columns of black pixels to images that don't have these maximum dimensions.  
   
 **The required Python modules:**  
 *- Joblib*  
