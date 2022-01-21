@@ -180,6 +180,7 @@ The output mask will be saved with the given name of the dataset, complemented w
 -----
 
 **Prof. Dr. Benoît SMETS**  
+**Dr. Antoine DILLE**  
 Natural Hazards Service (GeoRiskA)  
 ROYAL MUSEUM FOR CENTRAL AFRICA -- Tervuren, Belgium  
 Cartography & GIS Research Group (CGIS)  
