@@ -26,9 +26,8 @@ A suitable Python environment can be set up using conda and the packages install
             conda config --env --set channel_priority strict
             conda install opencv matplotlib tk pathlib joblib pillow numpy pandas
 
-Would you have troubles with the installation of the modules using conda, we recommend using mamba (https://github.com/mamba-org/mamba)
-
-
+Would you have troubles with the installation of the modules using conda, we recommend using mamba (https://github.com/mamba-org/mamba).
+It also uses Sun Valley ttk theme (https://github.com/rdbende/Sun-Valley-ttk-theme) for the tKinter theme. It can be installed with `pip install sv-ttk`.
 
 Each script has been optimized for speed by parallelizing the job using the Multiprocessing module.  
   
