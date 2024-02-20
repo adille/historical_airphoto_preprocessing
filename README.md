@@ -6,15 +6,30 @@ The present repository contains a series of scripts that are useful to prepare d
   
 All these scripts were developed in the frame of the **PAStECA Project** (BELSPO, BRAIN-be Programme, Contract n° BR/165/A3/PASTECA, http://pasteca.africamuseum.be/). They were written in Python 3.
   
-Each script can be run by simply adapting the necessary parameters in the "setup" section of the script. All these scripts have the same 4-part structure:  
+Each script can be run by simply adapting the necessary parameters in the "setup" section of the script **or** together using a simple graphical interface based on tkinter. All these scripts have the same 4-part structure:  
   
 *1) A header providing a description of the script, the name of the authors, the required Python modules, the reference to cite if used, etc.*  
 *2) A section with the Python modules to install (in addition to the recommended Anaconda/Miniconda Package distribution)*  
 *3) The SETUP section with the variables and parameters that must be adapted by the user (only part that must be modified before use)*  
 *4) The required coding to perform the task (should not be modified, except for specific user needs)*  
   
-To get the required Python working environment, the followed philosophy was to install the Anaconda/Miniconda Distribution for Python 3, create a virtual environment dedicated to the processing of aerial photographs (using "conda create --name *myenv* python=3") and add the required modules using the "conda install" or "pip install" functions. The required Python modules that are needed for each script are mentioned in the header of the script.  
+
   
+### Dependencies
+GAPP is coded in Python 3 (Python 3.8 and 3.12 have been tested), and requires the following Python packages to run: `opencv matplotlib tk pathlib joblib pillow numpy pandas`
+
+A suitable Python environment can be set up using conda and the packages installed from conda-forge:
+
+            conda create --name gapp python=3.12
+            conda activate gapp
+            conda config --env --add channels conda-forge
+            conda config --env --set channel_priority strict
+            conda install opencv matplotlib tk pathlib joblib pillow numpy pandas
+
+Would you have troubles with the installation of the modules using conda, we recommend using mamba (https://github.com/mamba-org/mamba)
+
+
+
 Each script has been optimized for speed by parallelizing the job using the Multiprocessing module.  
   
 The scripts have also been adapted to display information about the ongoing processing in the Python console or terminal.  
@@ -46,25 +61,40 @@ To contact me --> MyFirstName.MyLastName@africamuseum.be or MyFirstName.MyLastNa
   
 **!!! PLEASE READ THE FOLLOWING DESCRIPTION BEFORE USING THE SCRIPTS FOR THE FIRST TIME !!!**  
 
-## SCRIPT 0: Copy2singleFolder (optional)
-*Current version:* **1.0.1** *(18th May 2021)*  
 
-This script simply copies all the raw scanned photos that are stored in a series of subfolders, into a single folder. It has been developed as the technicians who are taking care of scanning and archiving the raw scanned photos follow a specific structure of folders and subfolders to store the raw scanned data. As all the following scripts are based on the assumption that all the photos to process are in the same folder (i.e., one directory path provided for the input data), this small script allows copying the scanned data into an appropriate single place for their preprocessing. It also has the advantage of leaving the original scans where they are, and making us working on a copy of them.
+## GAPP_AirPhotoPreprocessing_main_v101
+This script provide a graphic interface for controlling and launching all scripts at once. It offers to tune some of the main parameters and launch one or multiple GAPP scripts.
 
-The required Python modules are **os** and **shutil**. They are both default modules within Python.
+**The required Python modules:**  
+*- tKinter* 
+
+![GAPP interface](https://github.com/adille/historical_airphoto_preprocessing/blob/GAPP/figures/GAPP_interface.JPG)
+
+
+## SCRIPT 00 - Tool: FiducialTemplateCreator (optional)
+*Current version:* **1.0.1** *(22nd December 2021)*  
+
+This script aims at creating templates for the four fiducial (corners) of an aerial image for later automatic detection of the fiducials on a large set of aerial images (see SCRIPT 02 - Automatic Fiducials Detection). Simply provide the path of one image of the set with representative fiducial marks. Note that SCRIPT 02 allows to test multiple templates. Good practice to lauch it before GAPP_AirPhotoPreprocessing_main_v101.
+
+**The required Python modules:**  
+*- OpenCV* 
+*- Matplotlib*  
+*- Pathlib*  
 
 **The parameters to provide are:**  
-*- The path of the source folder (i.e., master folder where all the photos and subfolders are located)*  
-*- The path of the destination folder*  
-*- The file format of the photos (by default, .tif), in case other files are stored in the folder and subfolders*  
+*- The path of one image of the set*  
+*- The coordinates (in pixel) of the four fiducial mark center*  
+*- The half-width of the fiducial mark*  
+*- An output folder path where the templates images and a text file with the coordinates of the fiducial centre will be saved*  
+*- A name for the dataset*  
 
-## SCRIPT 1: AirPhoto_CanvasSizing 
-*Current version:* **1.0.1** *(18th May 2021)*  
+
+## SCRIPT 01: AirPhoto_CanvasSizing 
+*Current version:* **1.0.2** *(22nd December 2021)*  
   
-This script aims to get images with the same number of pixels in width and height, which is not always the case with scanned photographs. The script will look at all photographs available in a given directory and search for the maximum width and height values in the dataset. Once found, it will homogenize the dataset by adding rows and/or columns of black pixels to images that don't have these maximum dimensions.  
+This script aims to get images with the same number of pixels in width and height, which is not always the case with scanned photographs. The script will look at all photographs available in a given directory **and subdirectories** and search for the maximum width and height values in the dataset. Once found, it will homogenize the dataset by adding rows and/or columns of black pixels to images that don't have these maximum dimensions.  
   
 **The required Python modules:**  
-*- Glob*  
 *- Joblib*  
 *- OpenCV*  
 *- Pillow*  
@@ -72,19 +102,49 @@ This script aims to get images with the same number of pixels in width and heigh
 **The parameters that have to be adapted by the user:**  
 *- Input folder (where the raw scans are located)*  
 *- Output folder (where the resized images will be saved)*  
-*- The image format of the input images (e.g., tif, jpeg, png, etc.)*  
 *- The number of CPU cores to use for the parallel processing (by default: max - 1)*  
   
 The output images will be saved with the same name as the input images, complemented with "_CanvasSized". The images will be saved in tif format, as I personnally only work with raw (uint16) tif files. If you want to change this, you have to adapt the file format in the script, in line 109.  
   
+
+## SCRIPT 02: AutomaticFiducialDetection  
+*Current version:* **1.1.0** *(22nd December 2021)*  
   
-## SCRIPT 2: AirPhoto_reprojection  
-*Current version:* **1.0.1** *(18th May 2021)*  
-  
-This script aims to reproject the aerial photographs based on the pixel coordinates of the fiducial marks, in order to obtain a homogeneous dataset with the center of perspective located in the middle of the images. To run this script, you first need to create a table, in csv format, containing the XY coordinates (in pixel) of four fiducial marks used to locate the center of perspective. A template of such a table is provided (*"fiducial_marks_coordinates_TEMPLATE.csv"*). Please, keep the name of each columns similar to those in the template, as these names are used in the script to find the corresponding information. Image's names, in the CSV file, must also be similar to the files that will be processed. By default, the fiducial marks 1, 2, 3 and 4 correspond to the top-left, top-right, bottom-right and bottom-left corners, respectively. If the fiducial marks are located at mid-distance from the corners, the fiducial marks 1, 2, 3 and 4 correspond to the top, right, bottom and left positions, respectively. 
+This script aims to detect the (pixel coordinates) centre of the four fiducial marks of an aerial image. This information will be used to reproject the aerial photographs in order to obtain a homogeneous dataset with the center of perspective located in the middle of the images (see SCRIPT 03: AirPhoto_reprojection). It requires one (or more) template for each fiducial of a typical aerial image of the dataset (see SCRIPT 00 - Tool: FiducialTemplateCreator to create such templates). One can precise the presence of stripes with no data around some side of the image. Note that: a) it is OpenCV tool matchTemplate that is used, the latter is not able to account for change in size nor orientation (e.g., rotation) between the template and the image (--> so consider using SCRIPT 00 to have templates at the correct size for your dataset); b) for now it only handles fiducials located in the corner of the image; c) there are some checks to monitor the accuracy of the matching and provide warnings, but sometimes it is not sufficient --> do not hesisitate to do a visual check of the coordinates found. To help with that, one figure with the location of the four fiducials is created for each images and saved in folder >/_temp_corners/_all_fiducials).  
+
   
 ***The required Python modules:**  
-*- Glob*  
+*- Joblib*  
+*- Numpy*  
+*- OpenCV*  
+*- Pandas*  
+*- Matplotlib*  
+*- Pathlib*  
+*- Pillow*  
+
+  
+**The parameters that have to be adapted by the user:**  
+*- A name for the dataset*  (used to find adequate reference template)
+*- An image folder with the "canvas-sized" images (see SCRIPT 01)*  
+*- The path to folder with the fiducial template (see SCRIPT 00)*  
+*- The path to csv file where the centre of the fiducial template is indicated (see SCRIPT 00)*  
+*- An output folder where temporary fiducials of the images will be saved for later check *  
+*- A file path for the csv file with the pixel coordinates of the fiducial marks*  
+*- The relative size and location of stripe of no-data within aerial images (e.g., balck stripe on on left and bottom of images) *  
+*- The  size of the zones used to look for the fiducials within each image *  
+*- A threshold value to define a good match (the higher the more confident) *  
+*- The number of CPU cores to use for the parallel processing (by default: max - 1)*   
+  
+
+![Automatic Fiducial Detection](https://github.com/adille/historical_airphoto_preprocessing/blob/GAPP/figures/GAPP_fiducial_automatic_detection.JPG)
+
+
+## SCRIPT 03: AirPhoto_reprojection  
+*Current version:* **1.0.2** *(22nd December 2021)*  
+  
+This script aims to reproject the aerial photographs based on the pixel coordinates of the fiducial marks, in order to obtain a homogeneous dataset with the center of perspective located in the middle of the images. To run this script, you first need to create a table, in csv format, containing the XY coordinates (in pixel) of four fiducial marks used to locate the center of perspective (see SCRIPT 02). A template of such a table is provided (*"fiducial_marks_coordinates_TEMPLATE.csv"*). Please, keep the name of each columns similar to those in the template, as these names are used in the script to find the corresponding information. Image's names, in the CSV file, must also be similar to the files that will be processed. By default, the fiducial marks 1, 2, 3 and 4 correspond to the top-left, top-right, bottom-right and bottom-left corners, respectively. If the fiducial marks are located at mid-distance from the corners, the fiducial marks 1, 2, 3 and 4 correspond to the top, right, bottom and left positions, respectively. 
+  
+***The required Python modules:**  
 *- Joblib*  
 *- Numpy*  
 *- OpenCV*  
@@ -101,15 +161,16 @@ This script aims to reproject the aerial photographs based on the pixel coordina
   
 The output images will be saved with the same name as the input images, complemented with "_standardized". The images will be saved in tif format, as I personally only work with raw (uint16) tif files. If you want to change this, you have to adapt the file format in the script, in line 130.
 
-## NOT SCRIPTED: Downsampling of the images
+## SCRIPT 04: AirPhoto_Resize [Downsampling of the images]
+*Current version:* **1.0.1** *(22nd December 2021)*  
 
-In order to smooth the potential noise introduced by the reprojection of each image, **I strongly suggest to downsample the images to a lower resolution**. At the RMCA, we scan the photos at a resolution of 1500 dpi (except for specific collections), which is, in general, too much considering the quality of the collections. So, we use to resample the reprojected photos to 900 dpi (+ or - 300 dpi, depending on the quality of the dataset).
+In order to smooth the potential noise introduced by the reprojection of each image, **I strongly suggest to downsample the images to a lower resolution**. At the RMCA, we scan the photos at a resolution of 1600 dpi (except for specific collections), which is, in general, too much considering the quality of the collections. So, we use to resample the reprojected photos to 900 dpi (+ or - 300 dpi, depending on the quality of the dataset). The script will resize all the images in a folder to a user defined resolution value using bicubic interpolation. An unsharp mask can be applied after the interpolation, as well as a adaptative histogram calibration (CLAHE). Applying an unsharp mask is an image sharpening technique commonly used in digital image processing software after downscaling to maintain details in the image despite size changes (e.g. used by default in photoshop when downscaling an image). The technique uses a blurred, or "unsharp", negative image to create a mask of the original image. The unsharp mask is then combined with the original positive image, creating an image that is less blurry than the original.
 
-After several tests with different resampling algorithms and Python modules, it appears that **the best resampling method to obtain a good photogrammetric result is the "Bicubic Sharper" algorithm of Adobe Photoshop**. This algorithm is by far better than any other available with Python modules. So I strongly recommend to use Photoshop for this step. The downsampling of a photo dataset in Photoshop can be automated by creating an "Action". In case you do not have Photoshop or do not want to use it, the downsampling can be performed with other software, including Python modules like Pillow, OpenCV or Scikit-Image. However, I cannot guarantee an optimal image matching during the photogrammetric processing.
+***The required Python modules:**  
+*- Numpy*  
+*- OpenCV*  
 
-*If, in any case, you find an open-source equivalent of the Bicubic Sharper algorithm of Photoshop, please do not hesitate to share this information with me! Thank you in advance!*  
-
-## SCRIPT 3: CreateSingleMask (optional)
+## SCRIPT 05: CreateSingleMask (optional)
 *Current version:* **1.0.1** *(18th May 2021)*  
 
 This script is only useful for photogrammetric software that allows you to apply a single mask file to all the photos of the same dimensions, like with Agisoft Photoscan/Metashape Pro.
@@ -134,6 +195,7 @@ The output mask will be saved with the given name of the dataset, complemented w
 -----
 
 **Prof. Dr. Benoît SMETS**  
+**Dr. Antoine DILLE**  
 Natural Hazards Service (GeoRiskA)  
 ROYAL MUSEUM FOR CENTRAL AFRICA -- Tervuren, Belgium  
 Cartography & GIS Research Group (CGIS)  
