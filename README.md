@@ -13,8 +13,23 @@ Each script can be run by simply adapting the necessary parameters in the "setup
 *3) The SETUP section with the variables and parameters that must be adapted by the user (only part that must be modified before use)*  
 *4) The required coding to perform the task (should not be modified, except for specific user needs)*  
   
-To get the required Python working environment, the followed philosophy was to install the Anaconda/Miniconda Distribution for Python 3, create a virtual environment dedicated to the processing of aerial photographs (using "conda create --name *myenv* python=3") and add the required modules using the "conda install" or "pip install" functions. The required Python modules that are needed for each script are mentioned in the header of the script.  
+
   
+### Dependencies
+GAPP is coded in Python 3 (Python 3.8 and 3.12 have been tested), and requires the following Python packages to run: `opencv matplotlib tk pathlib joblib pillow numpy pandas`
+
+A suitable Python environment can be set up using conda and the packages installed from conda-forge:
+
+            conda create --name gapp python=3.12
+            conda activate gapp
+            conda config --env --add channels conda-forge
+            conda config --env --set channel_priority strict
+            conda install opencv matplotlib tk pathlib joblib pillow numpy pandas
+
+Would you have troubles with the installation of the modules using conda, we recommend using mamba (https://github.com/mamba-org/mamba)
+
+
+
 Each script has been optimized for speed by parallelizing the job using the Multiprocessing module.  
   
 The scripts have also been adapted to display information about the ongoing processing in the Python console or terminal.  
