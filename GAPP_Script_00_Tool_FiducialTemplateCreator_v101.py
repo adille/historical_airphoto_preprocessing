@@ -31,20 +31,20 @@ from pathlib import Path
 ################################    SETUP     ################################
 # ----------------------------------------------------------------------------
 # input parameters
-image4template_path=r"C:\Users\adille\Desktop\Tests\SCANs\_Tests_GAPP\Aerial_Images_Original\5968_Bande-17-083-109\5968_Bande-17-083.tiff"
-fiducialCenters={'top_left': [745, 878], 'top_right': [11054, 783], 'bot_right': [11076, 11257],'bot_left': [781, 11356]} #manual coordinates
+image4template_path=r"D:\PROCESSING\SCANS\Test_SCANS_GAPPS\5592-001.tif"
+fiducialCenters={'top_left': [778, 916], 'top_right': [11069, 824], 'bot_right': [11114, 11278],'bot_left': [819, 11364]} #manual coordinates
 
 
-halfwidth=240 #half width (in pixels) required to cover the entirety of the fiducial mark
-output_template_folder=r'C:\Users\adille\Desktop\Tests\SCANs\_Tests_GAPP\Fiducial_templates_Luluaburg_1959' # folder where the fiducial template will be saved
-dataset='Luluaburg_1959' # image dataset name (e.g., 'Virunga_1958')
+halfwidth=300 #half width (in pixels) required to cover the entirety of the fiducial mark
+output_template_folder=r'D:\PROCESSING\SCANS\Test_SCANS_GAPPS\Fiducial_templates_01' # folder where the fiducial template will be saved
+dataset='test_01' # image dataset name (e.g., 'Virunga_1958')
 # Fiducial_type='target'
 
 # ----------------------------------------------------------------------------
 ################################ END OF SETUP ###############################
 # ----------------------------------------------------------------------------
 
-
+os.makedirs(output_template_folder, exist_ok=True)
 
 
 
@@ -87,7 +87,8 @@ for corner_image in corner_list:
     cv2.imwrite(corner_image_name, fiducialCenters_images[corner_image])
 
 # create an associated     txt file
-f = open(output_template_folder + '/' + "Center_Fiduciales.txt", "a",newline='')
+
+f = open(output_template_folder + '/' + "Center_Fiducials.txt", "a",newline='')
 w = csv.writer(f,delimiter=" ")
 for corner_image in corner_list:
     template_name= 'Template_' + dataset + "_" + corner_image + '_' + str(i) #+ '.tif'
