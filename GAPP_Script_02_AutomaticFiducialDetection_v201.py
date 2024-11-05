@@ -93,16 +93,16 @@ matplotlib.use('Agg') # so that no figures are showing up (note that it may pose
 
 
 # input: dataset
-dataset='Luluaburg_1959' # image dataset name (e.g., 'Virunga_1958'). this variable is include in the template name (e.g., Template_Virunga_1958_top_left_1.tif)
+dataset='Dataset_01' # image dataset name (e.g., 'Virunga_1958'). this variable is include in the template name (e.g., Template_Virunga_1958_top_left_1.tif)
 
 # input: images
-image_folder = r"E:\PROCESS\SCANs\SCANS_Luluaburg\_Canvas_Sized" # where are located the images to process
+image_folder = r"D:\PROCESSING\SCANS\Test_SCANS_GAPPS\output\01_CanvasSized" # where are located the images to process
 
 # input: fiducial templates
-fiducial_template_folder = r"C:\Users\adille\Desktop\Tests\SCANs\Fiducials_Barriere\Luluaburg_1959\Fiducial_templates_Luluaburg_1959" # folder with the template images
-center_fidu_tempate_CSV= fiducial_template_folder + "/Center_Fiduciales.txt" #text file where the centre of the template is indicated
+fiducial_template_folder = r"D:\PROCESSING\SCANS\Test_SCANS_GAPPS\Fiducial_templates_01" # folder with the template images
+center_fidu_tempate_CSV= fiducial_template_folder + "/Center_Fiducials.txt" #text file where the centre of the template is indicated
 '''
-e.g., of Center_Fiduciales.txt
+e.g., of Center_Fiducials.txt
 Template Xc Yc 
 Template_Virunga_1958_top_left_1 220 220
 Template_Virunga_1958_top_left_2 220 220            ## if one want to use multiple templates for one corner side have to change the integer at the end
@@ -111,10 +111,11 @@ Template_Virunga_1958_top_right_1 220 220
 
 
 # outputs
-corner_folder=r"C:\Users\adille\Desktop\Tests\SCANs\Fiducials_Barriere\Luluaburg_1959\_temp_corners_Luluaburg_1959" # folder where temporary fiducials of the images (i.e., where
+corner_folder=rf"{image_folder}/_temp_corners_{dataset}" # folder where temporary fiducials of the images (i.e., where
             # the fiducial marks are located) will be saved
+input_image_folder = image_folder # folder where the images are located
 type_fidu = "barycentre" # parameter for ShiTomasi corner detection. 'fixed' or 'barycentre'
-Out_fiducialmarks_CSV = r"C:\Users\adille\Desktop\Tests\SCANs\Fiducials_Barriere\Luluaburg_1959\fiducial_marks_coordinates_Luluaburg_1959.csv" # output with the
+Out_fiducialmarks_CSV = rf"{image_folder}/fiducial_marks_coordinates_{dataset}.csv" # output with the
 #  location of the fiducial centre
 
 
@@ -471,7 +472,7 @@ def FiducialFig(F,fidu_coordinates, corner_folder):
 
 
 
-def Main(image_folder, image_name, S, p, Fidu_type, black_stripe_location,type_fidu,dataset, fiducial_template_folder, corner_folder, Out_fiducialmarks_CSV,center_fidu_tempate_CSV):
+def Main(image_folder, image_name, S, p, Fiducial_type, black_stripe_location,type_fidu,dataset, fiducial_template_folder, corner_folder, Out_fiducialmarks_CSV,center_fidu_tempate_CSV):
 
     if Fiducial_type!='rectangle' and Fiducial_type!='target' and Fiducial_type!='cross' : 
         print('Code not yet built for this fiducial type' )
@@ -481,9 +482,9 @@ def Main(image_folder, image_name, S, p, Fidu_type, black_stripe_location,type_f
     # 1.0. #select the area of the image where the fiducials are located (i.e., the corners)
     # -------------------------------------------------------------------------------------
 
-    image_path=image_folder + '/' +image_name
+    image_path = image_folder + '/' + image_name
     img=cv2.imread(image_path)
-    F=select_fiducial_corners(img, S, p, Fidu_type, black_stripe_location) # cropping image corner
+    F=select_fiducial_corners(img, S, p, Fiducial_type, black_stripe_location) # cropping image corner
     F_area=F.keys() 
     Coord={}
     ToBeChecked = pd.DataFrame(columns=['image', 'corner', 'x', 'y', 'maxVal'])
@@ -491,16 +492,17 @@ def Main(image_folder, image_name, S, p, Fidu_type, black_stripe_location,type_f
     fidu_coordinates = pd.DataFrame(columns=['image','corner', 'template', 'xc', 'yc', 'u1', 'v1', 'maxVal'])
     for corner in F_area:
         #-------------------------------------------------------------------------------------
-        #1.1 Load fiducial template
+        # 1.1 Load fiducial template
         #-------------------------------------------------------------------------------------
 
         # create dic with fiducial template that match
-        template_list=[template for template in os.listdir(fiducial_template_folder) if template[-4:] in ['.tif'] ]
-        template_list=[template for template in template_list if template[:len('Template_%s_%s' % (dataset, corner))] in 'Template_%s_%s' % (dataset, corner) ]
+        template_list_all=[template for template in os.listdir(fiducial_template_folder) if template[-4:] in ['.tif'] ]
+        # template_list=[template for template in template_list if template[:len('Template_%s_%s' % (dataset, corner))] in 'Template_%s_%s' % (dataset, corner) ]
+        template_list=[template for template in template_list_all if corner in template ]
 
         if len(template_list) == 0:
             print("Can't find any corresponding fiducial template")
-            sys.exit()
+            # sys.exit()
         else:
             template_dic={}
             for template_name in template_list:
@@ -537,9 +539,8 @@ def Main(image_folder, image_name, S, p, Fidu_type, black_stripe_location,type_f
                         v1=int(F[corner][1]+v)#line
                         # Coord[corner]=[u1,v1] #line,colon
 
-                        best_template = best_template.append(
-                            {'template': template_name, 'u1': u1, 'v1': v1, 'maxVal': maxVal},
-                            ignore_index=True)
+                        best_template = pd.concat([best_template, pd.DataFrame(
+                            [{'template': template_name, 'u1': u1, 'v1': v1, 'maxVal': maxVal}])], ignore_index=True)
 
                         if template_name == template_list[-1]:
                             best=best_template.iloc[best_template['maxVal'].idxmax()]
@@ -547,10 +548,10 @@ def Main(image_folder, image_name, S, p, Fidu_type, black_stripe_location,type_f
 
                             if best['maxVal'] >= 0.85:
                                 Coord[corner] = [best['u1'], best['v1']]  # line,colon
-                                fidu_coordinates = fidu_coordinates.append(
-                                    {'image':image_name, 'corner':corner, 'template': template_name,'xc':xc, 'yc':yc, 'u1': best['u1'], 'v1': best['v1'],
-                                     'maxVal': best['maxVal']},
-                                    ignore_index=True)
+                                fidu_coordinates = pd.concat([fidu_coordinates, pd.DataFrame(
+                                    [{'image': image_name, 'corner': corner, 'template': template_name, 'xc': xc,
+                                      'yc': yc, 'u1': best['u1'], 'v1': best['v1'], 'maxVal': best['maxVal']}]
+                                )], ignore_index=True)
 
 
                             elif best['maxVal'] < MatchingValueThreshold: # Value could be increased to be more constraining on the quality of the match
@@ -560,7 +561,7 @@ def Main(image_folder, image_name, S, p, Fidu_type, black_stripe_location,type_f
                                     p2=p-0.02
                                 else:
                                     p2=0
-                                F2 = select_fiducial_corners(img, S2, p2, Fidu_type,
+                                F2 = select_fiducial_corners(img, S2, p2, Fiducial_type,
                                                     black_stripe_location)  # cropping image corner
                                 u, v, maxVal = CenterFiducial_LUCASKANADE(F2[corner][0], Fiducial_type, orient,
                                                                           template_dic[template_name], xc, yc,
@@ -568,25 +569,24 @@ def Main(image_folder, image_name, S, p, Fidu_type, black_stripe_location,type_f
 
                                 u1 = int(F[corner][2] + u)  # colon
                                 v1 = int(F[corner][1] + v)  # line
-                                best_template = best_template.append(
-                                    {'template': template_name, 'u1': u1, 'v1': v1, 'maxVal': maxVal},
-                                    ignore_index=True)
+                                best_template = pd.concat([best_template, pd.DataFrame(
+                                    [{'template': template_name, 'u1': u1, 'v1': v1, 'maxVal': maxVal}]
+                                )], ignore_index=True)
                                 best = best_template.iloc[best_template['maxVal'].idxmax()]
 
 
                                 if best['maxVal'] >= MatchingValueThreshold:  # Value could be increased to be more constraining on the quality of the match
                                     Coord[corner] = [best['u1'], best['v1']]
-                                    fidu_coordinates = fidu_coordinates.append(
-                                        {'image': image_name, 'corner': corner, 'template': template_name, 'xc': xc,
-                                         'yc': yc, 'u1': best['u1'], 'v1': best['v1'],
-                                         'maxVal': best['maxVal']},
-                                        ignore_index=True)
+                                    fidu_coordinates = pd.concat([fidu_coordinates, pd.DataFrame(
+                                        [{'image': image_name, 'corner': corner, 'template': template_name, 'xc': xc,
+                                          'yc': yc, 'u1': best['u1'], 'v1': best['v1'], 'maxVal': best['maxVal']}]
+                                    )], ignore_index=True)
 
                                 else:
-                                    ToBeChecked = ToBeChecked.append(
-                                        {'image': image_name, 'corner': corner, 'x': best['u1'], 'y': best['v1'],
-                                         'maxVal': best['maxVal']},
-                                        ignore_index=True)
+                                    ToBeChecked = pd.concat([ToBeChecked, pd.DataFrame(
+                                        {'image': [image_name], 'corner': [corner], 'x': [best['u1']],
+                                         'y': [best['v1']], 'maxVal': [best['maxVal']]}
+                                    )], ignore_index=True)
 
                                     # Try with circle
                                     corner_monoband=[item[0] for item in F[corner][0][0]]
@@ -610,11 +610,13 @@ def Main(image_folder, image_name, S, p, Fidu_type, black_stripe_location,type_f
 
                                     if detected_fiducial_circles is not None:
                                         Coord[corner] = [detected_fiducial_circles[0][0][0],detected_fiducial_circles[0][0][1]]
-                                        fidu_coordinates = fidu_coordinates.append(
-                                            {'image': image_name, 'corner': corner, 'template': template_name, 'xc': xc,
-                                             'yc': yc, 'u1': detected_fiducial_circles[0][0][0], 'v1': detected_fiducial_circles[0][0][1],
-                                             'maxVal': 0},
-                                            ignore_index=True)
+                                        fidu_coordinates = pd.concat([fidu_coordinates, pd.DataFrame(
+                                            [{'image': image_name, 'corner': corner, 'template': template_name,
+                                              'xc': xc,
+                                              'yc': yc, 'u1': detected_fiducial_circles[0][0][0],
+                                              'v1': detected_fiducial_circles[0][0][1],
+                                              'maxVal': 0}]
+                                        )], ignore_index=True)
                                         # add circle
                                         circle = plt.Circle((detected_fiducial_circles[0][0][0], detected_circles[0][0][1]),
                                                              (detected_circles[0][0][2]), fill=False, color='r')
@@ -625,11 +627,12 @@ def Main(image_folder, image_name, S, p, Fidu_type, black_stripe_location,type_f
 
                                     else:
                                         Coord[corner] = [best['u1'], best['v1']]
-                                        fidu_coordinates = fidu_coordinates.append(
-                                            {'image': image_name, 'corner': corner, 'template': template_name, 'xc': xc,
+                                        fidu_coordinates = pd.concat([fidu_coordinates, pd.DataFrame(
+                                            [{'image': image_name, 'corner': corner, 'template': template_name, 'xc': xc,
                                              'yc': yc, 'u1': best['u1'], 'v1': best['v1'],
-                                             'maxVal': best['maxVal']},
-                                            ignore_index=True)
+                                             'maxVal': best['maxVal']}]
+                                        )], ignore_index=True)
+
 
 
                                     # save figure
@@ -650,14 +653,15 @@ def Main(image_folder, image_name, S, p, Fidu_type, black_stripe_location,type_f
 
             else:
                 print("! Could not find center coordinates for template | << check 'Center_Fiducial.csv' file >>")
-                print('Template_%s_%s_%s'%(Fidu_type,dataset,temp) + " != " + line[0])
+                print('Template_%s_%s_%s'%(Fiducial_type,dataset,temp) + " != " + line[0])
 
-                ToBeChecked = ToBeChecked.append(
-                    {'image': image_name, 'corner': corner, 'x': 0, 'y': 0, 'maxVal': 0},
-                    ignore_index=True)
+                ToBeChecked = pd.concat([ToBeChecked, pd.DataFrame(
+                    [{'image': image_name, 'corner': corner, 'x': 0, 'y': 0, 'maxVal': 0}]
+                )], ignore_index=True)
 
-                fidu_coordinates = fidu_coordinates.append(
-                    {'template': template_name, 'xc': 0, 'yc': 0, 'u': 0, 'v': 0}, ignore_index=True)
+                fidu_coordinates = pd.concat([fidu_coordinates, pd.DataFrame(
+                    [{'template': template_name, 'xc': 0, 'yc': 0, 'u': 0, 'v': 0}]
+                )], ignore_index=True)
                 sys.exit(0)
 
 
@@ -670,7 +674,7 @@ def Main(image_folder, image_name, S, p, Fidu_type, black_stripe_location,type_f
 
 def parameters_02(input_image_folder, fiducial_template_folder, dataset): #defaulting parameters for running in tkinter
 
-    center_fidu_tempate_CSV = fiducial_template_folder + "/Center_Fiduciales.txt"  # text file where the centre of the template is indicated
+    center_fidu_tempate_CSV = fiducial_template_folder + "/Center_Fiducials.txt"  # text file where the centre of the template is indicated
     corner_folder = os.path.dirname(input_image_folder) + '/' + '_temp_fiducials'  # folder where temporary fiducials of the images will be saved
     type_fidu = "barycentre"  # parameter for ShiTomasi corner detection. 'fixed' or 'barycentre'
     Out_fiducialmarks_CSV = input_image_folder + '/' + '_fiducial_marks_coordinates_' + dataset + '.csv'
@@ -707,10 +711,10 @@ def main_script_02(image_folder, fiducial_template_folder, dataset, p, black_str
         MatchingValueThreshold, DPI, Fiducial_type, num_cores\
             = parameters_02(image_folder, fiducial_template_folder, dataset)
 
-    print("\n"
-          "corner folder: " + corner_folder +
-          "\nOut_fiducialmarks_CSV: "+ Out_fiducialmarks_CSV +
-          "\ncenter_fidu_tempate_CSV: " + center_fidu_tempate_CSV  )
+        print("\n"
+              "corner folder: " + corner_folder +
+              "\nOut_fiducialmarks_CSV: "+ Out_fiducialmarks_CSV +
+              "\ncenter_fidu_tempate_CSV: " + center_fidu_tempate_CSV  )
 
     ##### PARALLEL PROCESSING #####
 
