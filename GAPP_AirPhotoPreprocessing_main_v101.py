@@ -76,10 +76,10 @@ if __name__ == "__main__":
     # root.iconphoto(True, tk.PhotoImage(file='logo.png'))
     root.title('GeoRiskA Aerial Photos Preprocessing Chain')
 
-    # Set appearence theme
-    root.tk.call("source", "ttk_Theme/sun-valley.tcl")  # https://github.com/rdbende/Sun-Valley-ttk-theme
-    root.tk.call("set_theme", "light")  # light or dark theme
-    root.option_add('*Font', 'TkMenuFont')  # define font
+    # # Set appearence theme
+    # root.tk.call("source", "ttk_Theme/sun-valley.tcl")  # https://github.com/rdbende/Sun-Valley-ttk-theme
+    # root.tk.call("set_theme", "light")  # light or dark theme
+    # root.option_add('*Font', 'TkMenuFont')  # define font
 
     # add epmty label for better spacing
     # emptylabel = tk.Label(root, text="  ").grid(row=0, column=0, sticky="nsew")
